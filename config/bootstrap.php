@@ -18,6 +18,8 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 $callableResolver = $app->getCallableResolver();
 
+$app->addRoutingMiddleware();
+
 $routes = require __DIR__ . '/../routes/api.php';
 $routes($app);
 

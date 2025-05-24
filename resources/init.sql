@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS exchange_rates (
     FOREIGN KEY (target_currency_id) REFERENCES currencies (id)
 );
 
-INSERT INTO currencies (code, full_name, sign) VALUES ("code", "full_name", "sign");
-INSERT INTO currencies (code, full_name, sign) VALUES ("123", "full_name", "sign");
+INSERT INTO currencies (code, full_name, sign) VALUES ("test1", "test1", "test1");
+INSERT INTO currencies (code, full_name, sign) VALUES ("test2", "test2", "test2");
