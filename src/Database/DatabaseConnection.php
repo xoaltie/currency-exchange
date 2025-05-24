@@ -10,7 +10,7 @@ final class DatabaseConnection
 
     /**
      * @param string $query
-     * @return array<int,array{
+     * @return list<array{
      *     id: int,
      *     code: string,
      *     full_name: string,
@@ -19,16 +19,41 @@ final class DatabaseConnection
      */
     public function exec(string $query): array
     {
-        $sql = $this->dbh->query($query);
+        $sth = $this->dbh->query($query);
 
-        if (!$sql){
+        if (!$sth) {
             throw new \PDOException(
-                "PDO can't execute query: {$query}.\n"
+                "PDO can't execute query: {$query}.\n",
             );
         }
 
-        $sql->execute();
+        $sth->execute();
 
-        return $sql->fetchAll(PDO::FETCH_ASSOC);
+        return $sth->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @param string $query
+     * @param array<string,mixed> $params
+     * @return list<array{
+     *     id: int,
+     *     code: string,
+     *     full_name: string,
+     *     sign: string,
+     * }>
+     */
+    public function prepareExec(string $query, array $params): array
+    {
+        $sth = $this->dbh->prepare($query);
+
+        $result = $sth->execute($params);
+
+        if (!$result) {
+            throw new \PDOException(
+                "PDO can't execute query: {$query}.\n",
+            );
+        }
+
+        return $sth->fetchAll(PDO::FETCH_ASSOC);
     }
 }
