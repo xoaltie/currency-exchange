@@ -28,7 +28,7 @@ final class CurrencyService
             $currencyDTOs[] = new CurrencyDTO(
                 id: $currency->id,
                 code: $currency->code,
-                name: $currency->fullName,
+                name: $currency->name,
                 sign: $currency->sign,
             );
         }
@@ -55,7 +55,7 @@ final class CurrencyService
         return new CurrencyDTO(
             id: $currency->id,
             code: $currency->code,
-            name: $currency->fullName,
+            name: $currency->name,
             sign: $currency->sign,
         );
     }
@@ -67,7 +67,7 @@ final class CurrencyService
         return new CurrencyDTO(
             id: $currency->id,
             code: $currency->code,
-            name: $currency->fullName,
+            name: $currency->name,
             sign: $currency->sign,
         );
     }

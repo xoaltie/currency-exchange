@@ -6,15 +6,15 @@ use App\DTO\CurrencyCreateDTO;
 use App\Exceptions\ModelNotFound;
 use App\Exceptions\ValidateException;
 use App\Responses\ErrorResponse;
-use App\Services\CurrencyService;
+use App\DTO\CurrencyService;
 use App\Utils\Validators\RequestValidator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class CurrencyController
+final readonly class CurrencyController
 {
     public function __construct(
-        private readonly CurrencyService $service,
+        private CurrencyService $service,
     ) {}
 
     public function index(Request $request, Response $response): Response

@@ -10,12 +10,7 @@ final class DatabaseConnection
 
     /**
      * @param string $query
-     * @return list<array{
-     *     id: int,
-     *     code: string,
-     *     full_name: string,
-     *     sign: string,
-     * }>
+     * @return array<int, array>
      */
     public function exec(string $query): array
     {
@@ -35,12 +30,7 @@ final class DatabaseConnection
     /**
      * @param string $query
      * @param array<string,mixed> $params
-     * @return list<array{
-     *     id: int,
-     *     code: string,
-     *     full_name: string,
-     *     sign: string,
-     * }>
+     * @return array<int, array>
      */
     public function prepareExec(string $query, array $params): array
     {

@@ -31,7 +31,7 @@ final readonly class CurrencyRepository
             $currencies[] = new Currency(
                 id: $value['id'],
                 code: $value['code'],
-                fullName: $value['full_name'],
+                name: $value['full_name'],
                 sign: $value['sign'],
             );
         }
@@ -55,7 +55,7 @@ final readonly class CurrencyRepository
         return new Currency(
             id: $currency[0]['id'],
             code: $currency[0]['code'],
-            fullName: $currency[0]['full_name'],
+            name: $currency[0]['full_name'],
             sign: $currency[0]['sign'],
         );
     }

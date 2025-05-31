@@ -19,6 +19,7 @@ $app = AppFactory::create();
 $callableResolver = $app->getCallableResolver();
 
 $app->addRoutingMiddleware();
+$app->addBodyParsingMiddleware();
 
 $routes = require __DIR__ . '/../routes/api.php';
 $routes($app);
