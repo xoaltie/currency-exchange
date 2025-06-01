@@ -3,10 +3,10 @@
 namespace App\Controllers;
 
 use App\DTO\CurrencyCreateDTO;
-use App\Exceptions\ModelNotFound;
+use App\Exceptions\CurrencyException;
 use App\Exceptions\ValidateException;
 use App\Responses\ErrorResponse;
-use App\DTO\CurrencyService;
+use App\Services\CurrencyService;
 use App\Utils\Validators\RequestValidator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -22,7 +22,7 @@ final readonly class CurrencyController
 
         $currencies = $this->service->getAllCurrencies();
 
-        $response->getBody()->write(json_encode($currencies), );
+        $response->getBody()->write(json_encode($currencies));
 
         return $response;
     }
@@ -45,7 +45,7 @@ final readonly class CurrencyController
             $currency = $this->service->getCurrencyByCode($validated['code']);
 
             $response->getBody()->write(json_encode($currency));
-        } catch (ModelNotFound $exception) {
+        } catch (CurrencyException $exception) {
             return new ErrorResponse(
                 message: $exception->getMessage(),
                 status: $exception->getCode(),
@@ -72,7 +72,7 @@ final readonly class CurrencyController
                 name: $validated['name'],
                 sign: $validated['sign'],
             ));
-        } catch (ValidateException|ModelNotFound $exception) {
+        } catch (ValidateException|CurrencyException $exception) {
             return new ErrorResponse(
                 $exception->getMessage(),
                 $exception->getCode(),

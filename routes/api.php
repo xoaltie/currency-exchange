@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\CurrencyController;
+use App\Controllers\ExchangeController;
 use App\Controllers\ExchangeRateController;
 use App\Middlewares\ApiMiddleware;
 use Slim\App;
@@ -18,5 +19,7 @@ return function (App $app) {
         $group->get('/exchangeRate/{pairCodes}', [ExchangeRateController::class, 'show']);
         $group->post('/exchangeRates', [ExchangeRateController::class, 'store']);
         $group->patch('/exchangeRate/{pairCodes}', [ExchangeRateController::class, 'update']);
+
+        $group->get('/exchange', ExchangeController::class);
     })->add(new ApiMiddleware());
 };

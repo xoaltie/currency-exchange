@@ -52,10 +52,50 @@ AND target_curr.code = :target_currency_code;";
             :target_currency_id,
             :rate);";
 
-    public const QUERY_UPDATE_WITH_RATE = "
+    private const QUERY_UPDATE_WITH_RATE = "
         UPDATE exchange_rates
         SET rate = :rate
         WHERE id = :id;";
+
+    private const QUERY_GET_BY_CODES_CROSS = "
+        SELECT
+            base_curr.id AS base_currency_id,
+            base_curr.code AS base_currency_code,
+            base_curr.full_name AS base_currency_name,
+            base_curr.sign AS base_currency_sign,
+            target_curr.id AS target_currency_id,
+            target_curr.code AS target_currency_code,
+            target_curr.full_name AS target_currency_name,
+            target_curr.sign AS target_currency_sign,
+            er.rate
+        FROM
+            exchange_rates er
+        JOIN currencies base_curr ON
+            er.base_currency_id = base_curr.id
+        JOIN currencies target_curr ON
+            er.target_currency_id = target_curr.id
+        WHERE
+            er.base_currency_id IN (
+            SELECT
+                base_currency_id
+            FROM
+                exchange_rates er
+            JOIN currencies base_curr ON
+                er.base_currency_id = base_curr.id
+            JOIN currencies target_curr ON
+                er.target_currency_id = target_curr.id
+            WHERE
+                target_curr.code IN (:base_currency_code, :target_currency_code)
+            GROUP BY
+                er.base_currency_id
+            HAVING
+                COUNT(DISTINCT er.target_currency_id) > 1
+        )
+            AND target_curr.code IN (:base_currency_code, :target_currency_code)
+        ORDER BY
+            er.base_currency_id,
+            target_curr.code = :base_currency_code desc
+        LIMIT 2;";
 
     public function __construct(
         private DatabaseConnection $connection,
@@ -122,6 +162,38 @@ AND target_curr.code = :target_currency_code;";
                 sign: $exchangeRate[0]['target_currency_sign'],
             ),
             rate: $exchangeRate[0]['rate'],
+        );
+    }
+
+    public function getCrossByCodes(string $baseCurrencyCode, string $targetCurrencyCode)
+    {
+        $exchangeRateCross = $this->connection->prepareExec(
+            self::QUERY_GET_BY_CODES_CROSS,
+            [
+                'base_currency_code' => $baseCurrencyCode,
+                'target_currency_code' => $targetCurrencyCode,
+            ],
+        );
+
+        if (empty($exchangeRateCross)) {
+            return new EmptyObject();
+        }
+
+        return new ExchangeRate(
+            id: 0,
+            baseCurrency: new Currency(
+                id: $exchangeRateCross[0]['target_currency_id'],
+                code: $exchangeRateCross[0]['target_currency_code'],
+                name: $exchangeRateCross[0]['target_currency_name'],
+                sign: $exchangeRateCross[0]['target_currency_sign'],
+            ),
+            targetCurrency: new Currency(
+                id: $exchangeRateCross[1]['target_currency_id'],
+                code: $exchangeRateCross[1]['target_currency_code'],
+                name: $exchangeRateCross[1]['target_currency_name'],
+                sign: $exchangeRateCross[1]['target_currency_sign'],
+            ),
+            rate: (1 / $exchangeRateCross[0]['rate']) * $exchangeRateCross[1]['rate'],
         );
     }
 

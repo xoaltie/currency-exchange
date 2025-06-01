@@ -4,14 +4,14 @@ namespace App\Services;
 
 use App\DTO\CurrencyCreateDTO;
 use App\DTO\CurrencyDTO;
-use App\Exceptions\ModelNotFound;
+use App\Exceptions\CurrencyException;
 use App\Models\EmptyObject;
 use App\Repository\CurrencyRepository;
 
-final class CurrencyService
+final readonly class CurrencyService
 {
     public function __construct(
-        private readonly CurrencyRepository $repository,
+        private CurrencyRepository $repository,
     ) {}
 
 
@@ -39,14 +39,14 @@ final class CurrencyService
     /**
      * @param string $code
      * @return CurrencyDTO
-     * @throws ModelNotFound
+     * @throws CurrencyException
      */
     public function getCurrencyByCode(string $code): CurrencyDTO
     {
         $currency = $this->repository->getByCode($code);
 
         if ($currency instanceof EmptyObject) {
-            throw new ModelNotFound(
+            throw new CurrencyException(
                 "Currency with code {$code} don't found.",
                 404,
             );

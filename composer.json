@@ -12,7 +12,8 @@
         "laravel/pint": "^1.22",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.2.0",
-        "phpstan/phpstan": "^1.8"
+        "phpstan/phpstan": "^1.8",
+        "phpunit/phpunit": "^9.6"
     },
     "config": {
         "allow-plugins": {
