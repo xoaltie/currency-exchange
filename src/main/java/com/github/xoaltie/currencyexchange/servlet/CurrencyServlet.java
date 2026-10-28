@@ -1,6 +1,5 @@
 package com.github.xoaltie.currencyexchange.servlet;
 
-import com.github.xoaltie.currencyexchange.dto.Response;
 import com.github.xoaltie.currencyexchange.listener.AppContextKeys;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.UnavailableException;
@@ -32,8 +31,6 @@ public class CurrencyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Response response = new Response("хуй");
-        resp.setStatus(200);
-        objectMapper.writeValue(resp.getWriter(), response);
+        //
     }
 }
