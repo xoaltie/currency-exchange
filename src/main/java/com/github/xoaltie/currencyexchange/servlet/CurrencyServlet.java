@@ -6,35 +6,27 @@ import com.github.xoaltie.currencyexchange.exception.CurrencyNotFoundException;
 import com.github.xoaltie.currencyexchange.listener.AppContextKeys;
 import com.github.xoaltie.currencyexchange.service.CurrencyService;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Objects;
 
 @WebServlet("/currency/*")
-public class CurrencyServlet extends HttpServlet {
+public class CurrencyServlet extends BaseServlet {
     private CurrencyService currencyService;
-    private ObjectMapper objectMapper;
 
     @Override
     public void init() {
+        super.init();
         Object rawCurrencyService = getServletContext().getAttribute(AppContextKeys.CURRENCY_SERVICE);
-        Object rawObjectMapper = getServletContext().getAttribute(AppContextKeys.OBJECT_MAPPER);
 
         Objects.requireNonNull(rawCurrencyService, "%s not found in ServletContext".formatted(AppContextKeys.CURRENCY_SERVICE));
-        Objects.requireNonNull(rawObjectMapper, "%s not found in ServletContext".formatted(AppContextKeys.OBJECT_MAPPER));
         if (!(rawCurrencyService instanceof CurrencyService)) {
             throw new IllegalStateException("%s must be %s, got %s instead".formatted(AppContextKeys.CURRENCY_SERVICE, CurrencyService.class, rawCurrencyService.getClass().getTypeName()));
         }
-        if (!(rawObjectMapper instanceof ObjectMapper)) {
-            throw new IllegalStateException("%s must be %s, got %s instead".formatted(AppContextKeys.OBJECT_MAPPER, ObjectMapper.class, rawObjectMapper.getClass().getTypeName()));
-        }
 
         currencyService = (CurrencyService) rawCurrencyService;
-        objectMapper = (ObjectMapper) rawObjectMapper;
     }
 
     @Override
