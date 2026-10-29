@@ -1,5 +1,6 @@
 package com.github.xoaltie.currencyexchange.filter;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
@@ -9,7 +10,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebFilter("/*")
+@WebFilter(
+        urlPatterns = "/*",
+        dispatcherTypes = {DispatcherType.REQUEST, DispatcherType.ERROR}
+)
 public class JsonResponseFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
