@@ -5,6 +5,8 @@ import com.github.xoaltie.currencyexchange.dto.ErrorResponse;
 import com.github.xoaltie.currencyexchange.exception.CurrencyNotFoundException;
 import com.github.xoaltie.currencyexchange.listener.AppContextKeys;
 import com.github.xoaltie.currencyexchange.service.CurrencyService;
+import com.github.xoaltie.currencyexchange.util.UriParser;
+import com.github.xoaltie.currencyexchange.validator.CurrencyCodeValidator;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,34 +33,9 @@ public class CurrencyServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
-        if (pathInfo == null) {
-            ErrorResponse responseBody = new ErrorResponse("invalid uri. must be /currency/{code}");
-            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+        String code = UriParser.parse(req.getPathInfo());
 
-        String[] pathParts = pathInfo.split("/");
-        if (pathParts.length != 2) {
-            ErrorResponse responseBody = new ErrorResponse("invalid uri. must be /currency/{code}");
-            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        String code = pathParts[1];
-        if (code.length() != 3) {
-            ErrorResponse responseBody = new ErrorResponse("code: '%s' must be 3 letters, got %d instead".formatted(code, code.length()));
-            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        boolean isOnlyLetters = code.chars()
-                .allMatch(Character::isLetter);
-        if (!isOnlyLetters) {
-            ErrorResponse responseBody = new ErrorResponse("code: '%s' must be only letters".formatted(code));
-            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+        CurrencyCodeValidator.validate(code);
 
         try {
             CurrencyResponseDto currency = currencyService.findByCode(code);
