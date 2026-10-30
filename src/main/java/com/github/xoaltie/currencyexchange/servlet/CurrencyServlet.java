@@ -33,41 +33,40 @@ public class CurrencyServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pathInfo = req.getPathInfo();
         if (pathInfo == null) {
-            resp.setStatus(400);
-            objectMapper.writeValue(resp.getWriter(), new ErrorResponse("invalid uri. must be /currency/{code}"));
+            ErrorResponse responseBody = new ErrorResponse("invalid uri. must be /currency/{code}");
+            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         String[] pathParts = pathInfo.split("/");
         if (pathParts.length != 2) {
-            resp.setStatus(400);
-            objectMapper.writeValue(resp.getWriter(), new ErrorResponse("invalid uri. must be /currency/{code}"));
+            ErrorResponse responseBody = new ErrorResponse("invalid uri. must be /currency/{code}");
+            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         String code = pathParts[1];
+        if (code.length() != 3) {
+            ErrorResponse responseBody = new ErrorResponse("code: '%s' must be 3 letters, got %d instead".formatted(code, code.length()));
+            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
         boolean isOnlyLetters = code.chars()
                 .allMatch(Character::isLetter);
         if (!isOnlyLetters) {
-            resp.setStatus(400);
-            objectMapper.writeValue(resp.getWriter(), new ErrorResponse("code: '%s' must be only letters".formatted(code)));
-            return;
-        }
-
-        if (code.length() != 3) {
-            resp.setStatus(400);
-            objectMapper.writeValue(resp.getWriter(), new ErrorResponse("code: '%s' must be 3 letters, got %d instead".formatted(code, code.length())));
+            ErrorResponse responseBody = new ErrorResponse("code: '%s' must be only letters".formatted(code));
+            writeJson(resp, responseBody, HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         try {
             CurrencyResponseDto currency = currencyService.findByCode(code);
-            resp.setStatus(200);
-            objectMapper.writeValue(resp.getWriter(), currency);
+            writeJson(resp, currency, HttpServletResponse.SC_OK);
+
         } catch (CurrencyNotFoundException e) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            objectMapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
+            writeJson(resp, new ErrorResponse(e.getMessage()), HttpServletResponse.SC_NOT_FOUND);
+
         }
     }
 }
