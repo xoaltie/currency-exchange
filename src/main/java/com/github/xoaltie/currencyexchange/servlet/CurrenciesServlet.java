@@ -31,7 +31,6 @@ public class CurrenciesServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         List<CurrencyResponseDto> currencies = currencyService.findAll();
-        resp.setStatus(HttpServletResponse.SC_OK);
-        objectMapper.writeValue(resp.getWriter(), currencies);
+        writeJson(resp, currencies, HttpServletResponse.SC_OK);
     }
 }
