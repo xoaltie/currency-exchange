@@ -1,8 +1,12 @@
 package com.github.xoaltie.currencyexchange.servlet;
 
+import com.github.xoaltie.currencyexchange.dto.CurrencyRequestDto;
 import com.github.xoaltie.currencyexchange.dto.CurrencyResponseDto;
+import com.github.xoaltie.currencyexchange.dto.ErrorResponse;
+import com.github.xoaltie.currencyexchange.exception.CurrencyAlreadyExistsException;
 import com.github.xoaltie.currencyexchange.listener.AppContextKeys;
 import com.github.xoaltie.currencyexchange.service.CurrencyService;
+import com.github.xoaltie.currencyexchange.validator.CurrencyValidator;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,5 +36,18 @@ public class CurrenciesServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         List<CurrencyResponseDto> currencies = currencyService.findAll();
         writeJson(resp, currencies, HttpServletResponse.SC_OK);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        CurrencyRequestDto dto = new CurrencyRequestDto(
+                req.getParameter("code"),
+                req.getParameter("name"),
+                req.getParameter("sign")
+        );
+        CurrencyValidator.validate(dto);
+
+        CurrencyResponseDto newCurrency = currencyService.create(dto);
+        writeJson(resp, newCurrency, HttpServletResponse.SC_CREATED);
     }
 }

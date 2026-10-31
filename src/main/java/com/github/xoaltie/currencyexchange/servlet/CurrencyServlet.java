@@ -1,12 +1,10 @@
 package com.github.xoaltie.currencyexchange.servlet;
 
 import com.github.xoaltie.currencyexchange.dto.CurrencyResponseDto;
-import com.github.xoaltie.currencyexchange.dto.ErrorResponse;
-import com.github.xoaltie.currencyexchange.exception.CurrencyNotFoundException;
 import com.github.xoaltie.currencyexchange.listener.AppContextKeys;
 import com.github.xoaltie.currencyexchange.service.CurrencyService;
 import com.github.xoaltie.currencyexchange.util.UriParser;
-import com.github.xoaltie.currencyexchange.validator.CurrencyCodeValidator;
+import com.github.xoaltie.currencyexchange.validator.CurrencyValidator;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,16 +32,8 @@ public class CurrencyServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String code = UriParser.parse(req.getPathInfo());
-
-        CurrencyCodeValidator.validate(code);
-
-        try {
-            CurrencyResponseDto currency = currencyService.findByCode(code);
-            writeJson(resp, currency, HttpServletResponse.SC_OK);
-
-        } catch (CurrencyNotFoundException e) {
-            writeJson(resp, new ErrorResponse(e.getMessage()), HttpServletResponse.SC_NOT_FOUND);
-
-        }
+        CurrencyValidator.validateCode(code);
+        CurrencyResponseDto currency = currencyService.findByCode(code);
+        writeJson(resp, currency, HttpServletResponse.SC_OK);
     }
 }

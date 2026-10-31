@@ -1,6 +1,8 @@
 package com.github.xoaltie.currencyexchange.servlet;
 
 import com.github.xoaltie.currencyexchange.dto.ErrorResponse;
+import com.github.xoaltie.currencyexchange.exception.CurrencyAlreadyExistsException;
+import com.github.xoaltie.currencyexchange.exception.CurrencyNotFoundException;
 import com.github.xoaltie.currencyexchange.exception.ValidationException;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.annotation.WebServlet;
@@ -41,6 +43,16 @@ public class ErrorServlet extends BaseServlet {
 
         if (throwable instanceof ValidationException) {
             writeJson(resp, new ErrorResponse(throwable.getMessage()), HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        if (throwable instanceof CurrencyNotFoundException) {
+            writeJson(resp, new ErrorResponse(throwable.getMessage()), HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        if (throwable instanceof CurrencyAlreadyExistsException) {
+            writeJson(resp, new ErrorResponse(throwable.getMessage()), HttpServletResponse.SC_CONFLICT);
             return;
         }
 
