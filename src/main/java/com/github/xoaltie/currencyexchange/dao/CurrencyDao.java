@@ -9,4 +9,6 @@ public interface CurrencyDao {
     List<Currency> findAll();
 
     Optional<Currency> findByCode(String code);
+
+    Currency create(Currency currency);
 }

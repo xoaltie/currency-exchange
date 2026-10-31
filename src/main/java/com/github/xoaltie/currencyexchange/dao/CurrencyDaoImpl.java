@@ -2,6 +2,8 @@ package com.github.xoaltie.currencyexchange.dao;
 
 import com.github.xoaltie.currencyexchange.db.ConnectionPool;
 import com.github.xoaltie.currencyexchange.entity.Currency;
+import com.github.xoaltie.currencyexchange.exception.CurrencyAlreadyExistsException;
+import org.sqlite.SQLiteErrorCode;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,6 +23,11 @@ public final class CurrencyDaoImpl implements CurrencyDao {
             SELECT id, code, full_name, sign
             FROM currencies
             WHERE code = ?;
+            """;
+    private static final String INSERT_QUERY = """
+            INSERT INTO currencies(code, full_name, sign)
+            VALUES (?, ?, ?)
+            RETURNING id, code, full_name, sign;
             """;
 
     @Override
@@ -45,7 +52,7 @@ public final class CurrencyDaoImpl implements CurrencyDao {
         Objects.requireNonNull(code, "code must not be null");
 
         try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID_QUERY);) {
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID_QUERY)) {
             preparedStatement.setString(1, code);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -58,6 +65,27 @@ public final class CurrencyDaoImpl implements CurrencyDao {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public Currency create(Currency currency) {
+        Objects.requireNonNull(currency, "currency must not be null");
+
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_QUERY)) {
+            preparedStatement.setString(1, currency.getCode());
+            preparedStatement.setString(2, currency.getFullName());
+            preparedStatement.setString(3, currency.getSign());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                resultSet.next();
+                return mapRow(resultSet);
+            }
+        } catch (SQLException e) {
+            if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
+                throw new CurrencyAlreadyExistsException("currency with code '%s' already exists".formatted(currency.getCode()));
+            }
+            throw new RuntimeException(e);
+        }
     }
 
     private Currency mapRow(ResultSet resultSet) throws SQLException {
