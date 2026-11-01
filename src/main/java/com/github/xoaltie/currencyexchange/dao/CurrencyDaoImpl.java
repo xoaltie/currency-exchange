@@ -19,7 +19,7 @@ public final class CurrencyDaoImpl implements CurrencyDao {
             SELECT id, code, full_name, sign
             FROM currencies;
             """;
-    private static final String FIND_BY_ID_QUERY = """
+    private static final String FIND_BY_CODE_QUERY = """
             SELECT id, code, full_name, sign
             FROM currencies
             WHERE code = ?;
@@ -52,7 +52,7 @@ public final class CurrencyDaoImpl implements CurrencyDao {
         Objects.requireNonNull(code, "code must not be null");
 
         try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID_QUERY)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_CODE_QUERY)) {
             preparedStatement.setString(1, code);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {

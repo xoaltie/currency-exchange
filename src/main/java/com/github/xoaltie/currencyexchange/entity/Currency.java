@@ -1,8 +1,8 @@
 package com.github.xoaltie.currencyexchange.entity;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public final class Currency {
     private final int id;
     private final String code;
