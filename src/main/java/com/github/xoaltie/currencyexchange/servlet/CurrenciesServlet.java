@@ -2,8 +2,6 @@ package com.github.xoaltie.currencyexchange.servlet;
 
 import com.github.xoaltie.currencyexchange.dto.CurrencyRequestDto;
 import com.github.xoaltie.currencyexchange.dto.CurrencyResponseDto;
-import com.github.xoaltie.currencyexchange.dto.ErrorResponse;
-import com.github.xoaltie.currencyexchange.exception.CurrencyAlreadyExistsException;
 import com.github.xoaltie.currencyexchange.listener.AppContextKeys;
 import com.github.xoaltie.currencyexchange.service.CurrencyService;
 import com.github.xoaltie.currencyexchange.validator.CurrencyValidator;
