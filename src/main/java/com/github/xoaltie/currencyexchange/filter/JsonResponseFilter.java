@@ -17,7 +17,7 @@ import java.io.IOException;
 public class JsonResponseFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
-        res.setContentType("application/json");
+        res.setContentType(MediaType.APPLICATION_JSON.getValue());
         res.setCharacterEncoding("UTF-8");
         chain.doFilter(req, res);
     }
