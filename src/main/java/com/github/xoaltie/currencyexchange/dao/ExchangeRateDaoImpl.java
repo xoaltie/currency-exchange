@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public final class ExchangeRateDaoImpl implements ExchangeRateDao {
     private static final String FIND_ALL_QUERY = """
@@ -29,6 +31,23 @@ public final class ExchangeRateDaoImpl implements ExchangeRateDao {
                      JOIN currencies AS t
                           ON er.target_currency_id = t.id;
             """;
+    private static final String FIND_BY_CODE_PAIR_QUERY = """
+            SELECT er.id       AS id,
+                   b.id        AS base_currency_id,
+                   b.code      AS base_currency_code,
+                   b.full_name AS base_currency_full_name,
+                   b.sign      AS base_currency_sign,
+                   t.id        AS target_currency_id,
+                   t.code      AS target_currency_code,
+                   t.full_name AS target_currency_full_name,
+                   t.sign      AS target_currency_sign,
+                   er.rate     AS rate
+            FROM exchange_rates AS er
+                     JOIN currencies AS b
+                          ON er.base_currency_id = b.id AND b.code = ?
+                     JOIN currencies AS t
+                          ON er.target_currency_id = t.id AND t.code = ?;
+            """;
 
     @Override
     public List<ExchangeRate> findAll() {
@@ -45,6 +64,28 @@ public final class ExchangeRateDaoImpl implements ExchangeRateDao {
         }
 
         return exchangeRates;
+    }
+
+    @Override
+    public Optional<ExchangeRate> findByCodePair(String baseCurrencyCode, String targetCurrencyCode) {
+        Objects.requireNonNull(baseCurrencyCode, "base currency code must not be null");
+        Objects.requireNonNull(targetCurrencyCode, "target currency code must not be null");
+
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_CODE_PAIR_QUERY)) {
+            preparedStatement.setString(1, baseCurrencyCode);
+            preparedStatement.setString(2, targetCurrencyCode);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    ExchangeRate exchangeRate = mapRow(resultSet);
+                    return Optional.of(exchangeRate);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Optional.empty();
     }
 
     private ExchangeRate mapRow(ResultSet resultSet) throws SQLException {
