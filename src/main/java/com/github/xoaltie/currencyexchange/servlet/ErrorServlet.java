@@ -3,6 +3,7 @@ package com.github.xoaltie.currencyexchange.servlet;
 import com.github.xoaltie.currencyexchange.dto.ErrorResponse;
 import com.github.xoaltie.currencyexchange.exception.CurrencyAlreadyExistsException;
 import com.github.xoaltie.currencyexchange.exception.CurrencyNotFoundException;
+import com.github.xoaltie.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import com.github.xoaltie.currencyexchange.exception.ExchangeRateNotFoundException;
 import com.github.xoaltie.currencyexchange.exception.IdenticalCurrencyPairException;
 import com.github.xoaltie.currencyexchange.exception.IncorrectContentTypeException;
@@ -55,7 +56,7 @@ public class ErrorServlet extends BaseServlet {
             return;
         }
 
-        if (throwable instanceof CurrencyAlreadyExistsException) {
+        if (throwable instanceof CurrencyAlreadyExistsException || throwable instanceof ExchangeRateAlreadyExistsException) {
             writeJson(resp, new ErrorResponse(throwable.getMessage()), HttpServletResponse.SC_CONFLICT);
             return;
         }
