@@ -31,7 +31,7 @@ public final class ExchangeRateService {
             throw new IdenticalCurrencyPairException("base and target currency code pairs must not be the same: %s".formatted(baseCurrencyCode));
         }
 
-        ExchangeRate exchangeRate = exchangeRateDao.findByCodePair(baseCurrencyCode.toUpperCase(), targetCurrencyCode.toUpperCase())
+        ExchangeRate exchangeRate = exchangeRateDao.findByCodePair(baseCurrencyCode, targetCurrencyCode)
                 .orElseThrow(() -> new ExchangeRateNotFoundException("exchange rate %s does not exist".formatted(baseCurrencyCode + targetCurrencyCode)));
         return ExchangeRateMapper.INSTANCE.toDto(exchangeRate);
     }

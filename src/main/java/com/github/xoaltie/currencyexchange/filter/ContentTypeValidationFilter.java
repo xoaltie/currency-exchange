@@ -36,7 +36,7 @@ public class ContentTypeValidationFilter extends HttpFilter {
         }
 
         // TODO: вытащить парсинг в util класс или что то подобное. если обратная связь по ошибке придет в пользу 415 статуса, добавить новый exception
-        String contentType = contentTypeRaw.split(";")[0].trim();
+        String contentType = contentTypeRaw.split(";")[0].strip();
         if (!MediaType.APPLICATION_FORM_URLENCODED.is(contentType)) {
             throw new IncorrectContentTypeException("incorrect content-type. content-type must be %s, got %s instead".formatted(
                     MediaType.APPLICATION_FORM_URLENCODED.getValue(),

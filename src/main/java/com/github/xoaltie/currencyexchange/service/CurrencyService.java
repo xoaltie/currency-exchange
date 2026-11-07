@@ -25,7 +25,7 @@ public final class CurrencyService {
 
     public CurrencyResponseDto findByCode(String code) {
         Objects.requireNonNull(code, "code must be not null");
-        Currency currency = currencyDao.findByCode(code.toUpperCase())
+        Currency currency = currencyDao.findByCode(code)
                 .orElseThrow(() -> new CurrencyNotFoundException("currency %s does not exist".formatted(code)));
         return CurrencyMapper.INSTANCE.toDto(currency);
     }
