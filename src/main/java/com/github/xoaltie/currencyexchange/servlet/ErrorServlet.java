@@ -5,6 +5,7 @@ import com.github.xoaltie.currencyexchange.exception.CurrencyAlreadyExistsExcept
 import com.github.xoaltie.currencyexchange.exception.CurrencyNotFoundException;
 import com.github.xoaltie.currencyexchange.exception.ExchangeRateNotFoundException;
 import com.github.xoaltie.currencyexchange.exception.IdenticalCurrencyPairException;
+import com.github.xoaltie.currencyexchange.exception.IncorrectContentTypeException;
 import com.github.xoaltie.currencyexchange.exception.ValidationException;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.annotation.WebServlet;
@@ -41,6 +42,11 @@ public class ErrorServlet extends BaseServlet {
 
         if (throwable instanceof ValidationException || throwable instanceof IdenticalCurrencyPairException) {
             writeJson(resp, new ErrorResponse(throwable.getMessage()), HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        if (throwable instanceof IncorrectContentTypeException) {
+            writeJson(resp, new ErrorResponse(throwable.getMessage()), HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
             return;
         }
 
