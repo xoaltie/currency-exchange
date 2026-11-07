@@ -1,13 +1,17 @@
 package com.github.xoaltie.currencyexchange.servlet;
 
+import com.github.xoaltie.currencyexchange.dto.ExchangeRateRequestDto;
 import com.github.xoaltie.currencyexchange.dto.ExchangeRateResponseDto;
 import com.github.xoaltie.currencyexchange.listener.AppContextKeys;
 import com.github.xoaltie.currencyexchange.service.ExchangeRateService;
+import com.github.xoaltie.currencyexchange.validator.ExchangeRateValidator;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,5 +36,18 @@ public class ExchangeRatesServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         List<ExchangeRateResponseDto> exchangeRates = exchangeRateService.findAll();
         writeJson(resp, exchangeRates, HttpServletResponse.SC_OK);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ExchangeRateRequestDto dto = new ExchangeRateRequestDto(
+                req.getParameter("baseCurrencyCode"),
+                req.getParameter("targetCurrencyCode"),
+                req.getParameter("rate")
+        );
+        ExchangeRateValidator.validate(dto);
+
+        ExchangeRateResponseDto newExchangeRate = exchangeRateService.create(dto.baseCurrencyCode(), dto.targetCurrencyCode(), new BigDecimal(dto.rate()));
+        writeJson(resp, newExchangeRate, HttpServletResponse.SC_CREATED);
     }
 }
