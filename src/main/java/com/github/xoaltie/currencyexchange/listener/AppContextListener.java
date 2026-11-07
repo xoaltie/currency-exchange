@@ -22,7 +22,7 @@ public class AppContextListener implements ServletContextListener {
         CurrencyDao currencyDao = new CurrencyDaoImpl();
         CurrencyService currencyService = new CurrencyService(currencyDao);
         ExchangeRateDao exchangeRateDao = new ExchangeRateDaoImpl();
-        ExchangeRateService exchangeRateService = new ExchangeRateService(exchangeRateDao);
+        ExchangeRateService exchangeRateService = new ExchangeRateService(exchangeRateDao, currencyDao);
 
         ServletContext context = sce.getServletContext();
         context.setAttribute(AppContextKeys.OBJECT_MAPPER, objectMapper);

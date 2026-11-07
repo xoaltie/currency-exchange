@@ -3,6 +3,8 @@ package com.github.xoaltie.currencyexchange.dao;
 import com.github.xoaltie.currencyexchange.db.ConnectionPool;
 import com.github.xoaltie.currencyexchange.entity.Currency;
 import com.github.xoaltie.currencyexchange.entity.ExchangeRate;
+import com.github.xoaltie.currencyexchange.exception.ExchangeRateAlreadyExistsException;
+import org.sqlite.SQLiteErrorCode;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,6 +50,11 @@ public final class ExchangeRateDaoImpl implements ExchangeRateDao {
                      JOIN currencies AS t
                           ON er.target_currency_id = t.id AND t.code = ?;
             """;
+    private static final String INSERT_QUERY = """
+            INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate)
+            VALUES (?, ?, ?)
+            RETURNING id;
+            """;
 
     @Override
     public List<ExchangeRate> findAll() {
@@ -86,6 +93,34 @@ public final class ExchangeRateDaoImpl implements ExchangeRateDao {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public ExchangeRate create(ExchangeRate exchangeRate) {
+        Objects.requireNonNull(exchangeRate, "exchange rate must not be null");
+
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_QUERY)) {
+            preparedStatement.setInt(1, exchangeRate.getBaseCurrency().getId());
+            preparedStatement.setInt(2, exchangeRate.getTargetCurrency().getId());
+            preparedStatement.setBigDecimal(3, exchangeRate.getRate());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                resultSet.next();
+                return new ExchangeRate(
+                        resultSet.getInt("id"),
+                        exchangeRate.getBaseCurrency(),
+                        exchangeRate.getTargetCurrency(),
+                        exchangeRate.getRate()
+                );
+            }
+        } catch (SQLException e) {
+            if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
+                throw new ExchangeRateAlreadyExistsException(
+                        "exchange rate with codes '%s' and '%s' already exists".formatted(exchangeRate.getBaseCurrency().getCode(), exchangeRate.getTargetCurrency().getCode())
+                );
+            }
+            throw new RuntimeException(e);
+        }
     }
 
     private ExchangeRate mapRow(ResultSet resultSet) throws SQLException {

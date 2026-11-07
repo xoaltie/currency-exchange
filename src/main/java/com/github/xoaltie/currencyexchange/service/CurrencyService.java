@@ -30,6 +30,7 @@ public final class CurrencyService {
         return CurrencyMapper.INSTANCE.toDto(currency);
     }
 
+    // TODO: поменять по аналогии с exchange service create (убрать дто)
     public CurrencyResponseDto create(CurrencyRequestDto currencyRequestDto) {
         Currency newCurrency;
         newCurrency = currencyDao.create(CurrencyMapper.INSTANCE.fromDto(currencyRequestDto));

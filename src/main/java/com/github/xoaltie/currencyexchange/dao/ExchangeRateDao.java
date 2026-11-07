@@ -9,4 +9,6 @@ public interface ExchangeRateDao {
     List<ExchangeRate> findAll();
 
     Optional<ExchangeRate> findByCodePair(String baseCurrencyCode, String targetCurrencyCode);
+
+    ExchangeRate create(ExchangeRate exchangeRate);
 }
