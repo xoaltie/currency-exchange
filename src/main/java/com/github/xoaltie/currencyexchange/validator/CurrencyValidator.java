@@ -53,9 +53,9 @@ public class CurrencyValidator {
             throw new ValidationException("code: '%s' must be %d characters, got %d characters instead".formatted(code, CODE_LENGTH, code.length()));
         }
         boolean isOnlyLetters = code.chars()
-                .allMatch(c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+                .allMatch(c -> c >= 'A' && c <= 'Z');
         if (!isOnlyLetters) {
-            throw new ValidationException("code: '%s' must be only latin letters".formatted(code));
+            throw new ValidationException("code: '%s' must be only capital latin letters".formatted(code));
         }
     }
 
