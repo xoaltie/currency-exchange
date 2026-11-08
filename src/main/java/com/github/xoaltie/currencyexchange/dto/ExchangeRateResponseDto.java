@@ -9,6 +9,6 @@ public record ExchangeRateResponseDto(int id, CurrencyResponseDto baseCurrency, 
         this.id = id;
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
-        this.rate = rate.setScale(2, RoundingMode.HALF_UP);
+        this.rate = rate.setScale(6, RoundingMode.HALF_EVEN);
     }
 }
