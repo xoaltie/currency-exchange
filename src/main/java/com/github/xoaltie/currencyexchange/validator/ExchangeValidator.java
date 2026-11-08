@@ -1,42 +1,36 @@
 package com.github.xoaltie.currencyexchange.validator;
 
+import com.github.xoaltie.currencyexchange.dto.ExchangeRequestDto;
 import com.github.xoaltie.currencyexchange.exception.ValidationException;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public final class ExchangeValidator {
-    private ExchangeValidator() {
+public final class ExchangeValidator extends Validator {
+    private final CurrencyValidator currencyValidator;
+
+    public ExchangeValidator(CurrencyValidator currencyValidator) {
+        Objects.requireNonNull(currencyValidator, "currency validator must not be null");
+        this.currencyValidator = currencyValidator;
     }
 
-    public static void validate(String baseCurrencyCode, String targetCurrencyCode, String amount) {
-        Objects.requireNonNull(amount, "amount must not be null");
+    public void validate(ExchangeRequestDto dto) {
+        Objects.requireNonNull(dto, "exchange request dto must not be null");
 
-        validateMissing(baseCurrencyCode, "baseCurrencyCode");
-        validateMissing(targetCurrencyCode, "targetCurrencyCode");
-        validateMissing(amount, "amount");
+        validateMissing(dto.baseCurrencyCode(), "baseCurrencyCode");
+        validateMissing(dto.targetCurrencyCode(), "targetCurrencyCode");
+        validateMissing(dto.amount(), "amount");
 
-        validateBlank(amount, "amount");
+        validateBlank(dto.amount(), "amount");
 
-        CurrencyValidator.validateCode(baseCurrencyCode);
-        CurrencyValidator.validateCode(targetCurrencyCode);
+        currencyValidator.validateCode(dto.baseCurrencyCode());
+        currencyValidator.validateCode(dto.targetCurrencyCode());
 
-        validateAmount(amount);
+        validateAmount(dto.amount());
     }
 
-    private static void validateMissing(String value, String fieldName) {
-        if (value == null) {
-            throw new ValidationException("missing %s field".formatted(fieldName));
-        }
-    }
 
-    private static void validateBlank(String value, String fieldName) {
-        if (value.isBlank()) {
-            throw new ValidationException("%s: must be non-empty".formatted(fieldName));
-        }
-    }
-
-    private static void validateAmount(String amountRaw) {
+    private void validateAmount(String amountRaw) {
         BigDecimal amount;
         try {
             amount = new BigDecimal(amountRaw);

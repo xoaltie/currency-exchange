@@ -11,7 +11,6 @@ public final class ExchangeRate {
     private final Currency targetCurrency;
     private final BigDecimal rate;
 
-    // TODO: подумать о том, чтобы заменить на double (для консистентности с бд, вкорячить ограничение на 6 символов после запятой), операции с числами выполнять уже в BigDecimal
     public ExchangeRate(int id, Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
         this.id = id;
         this.baseCurrency = baseCurrency;

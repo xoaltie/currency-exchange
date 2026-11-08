@@ -1,7 +1,6 @@
 package com.github.xoaltie.currencyexchange.service;
 
 import com.github.xoaltie.currencyexchange.dao.CurrencyDao;
-import com.github.xoaltie.currencyexchange.dto.CurrencyRequestDto;
 import com.github.xoaltie.currencyexchange.dto.CurrencyResponseDto;
 import com.github.xoaltie.currencyexchange.entity.Currency;
 import com.github.xoaltie.currencyexchange.exception.CurrencyNotFoundException;
@@ -30,10 +29,13 @@ public final class CurrencyService {
         return CurrencyMapper.INSTANCE.toDto(currency);
     }
 
-    // TODO: поменять по аналогии с exchange service create (убрать дто)
-    public CurrencyResponseDto create(CurrencyRequestDto currencyRequestDto) {
+    public CurrencyResponseDto create(String code, String fullName, String sign) {
+        Objects.requireNonNull(code, "code must be not null");
+        Objects.requireNonNull(fullName, "full name must be not null");
+        Objects.requireNonNull(sign, "sign must be not null");
+
         Currency newCurrency;
-        newCurrency = currencyDao.create(CurrencyMapper.INSTANCE.fromDto(currencyRequestDto));
+        newCurrency = currencyDao.create(CurrencyMapper.INSTANCE.toEntity(code, fullName, sign));
         return CurrencyMapper.INSTANCE.toDto(newCurrency);
     }
 }

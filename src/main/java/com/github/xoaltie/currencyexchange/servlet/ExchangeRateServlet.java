@@ -20,18 +20,32 @@ import java.util.Objects;
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends BaseServlet {
     private ExchangeRateService exchangeRateService;
+    private CurrencyValidator currencyValidator;
+    private ExchangeRateValidator exchangeRateValidator;
 
     @Override
     public void init() {
         super.init();
         Object rawExchangeRateService = getServletContext().getAttribute(AppContextKeys.EXCHANGE_RATE_SERVICE);
+        Object rawCurrencyValidator = getServletContext().getAttribute(AppContextKeys.CURRENCY_VALIDATOR);
+        Object rawExchangeRateValidator = getServletContext().getAttribute(AppContextKeys.EXCHANGE_RATE_VALIDATOR);
 
         Objects.requireNonNull(rawExchangeRateService, "%s not found in ServletContext".formatted(AppContextKeys.EXCHANGE_RATE_SERVICE));
         if (!(rawExchangeRateService instanceof ExchangeRateService)) {
             throw new IllegalStateException("%s must be %s, got %s instead".formatted(AppContextKeys.EXCHANGE_RATE_SERVICE, ExchangeRateService.class, rawExchangeRateService.getClass().getTypeName()));
         }
+        Objects.requireNonNull(rawCurrencyValidator, "%s not found in ServletContext".formatted(AppContextKeys.CURRENCY_VALIDATOR));
+        if (!(rawCurrencyValidator instanceof CurrencyValidator)) {
+            throw new IllegalStateException("%s must be %s, got %s instead".formatted(AppContextKeys.CURRENCY_VALIDATOR, CurrencyValidator.class, rawCurrencyValidator.getClass().getTypeName()));
+        }
+        Objects.requireNonNull(rawExchangeRateValidator, "%s not found in ServletContext".formatted(AppContextKeys.EXCHANGE_RATE_VALIDATOR));
+        if (!(rawExchangeRateValidator instanceof ExchangeRateValidator)) {
+            throw new IllegalStateException("%s must be %s, got %s instead".formatted(AppContextKeys.EXCHANGE_RATE_VALIDATOR, ExchangeRateValidator.class, rawExchangeRateValidator.getClass().getTypeName()));
+        }
 
         exchangeRateService = (ExchangeRateService) rawExchangeRateService;
+        currencyValidator = (CurrencyValidator) rawCurrencyValidator;
+        exchangeRateValidator = (ExchangeRateValidator) rawExchangeRateValidator;
     }
 
     @Override
@@ -39,8 +53,8 @@ public class ExchangeRateServlet extends BaseServlet {
         String codePairRaw = UriParser.parse(req.getPathInfo());
         CurrencyCodePair codePair = CurrencyCodePairParser.parse(codePairRaw);
 
-        CurrencyValidator.validateCode(codePair.base());
-        CurrencyValidator.validateCode(codePair.target());
+        currencyValidator.validateCode(codePair.base());
+        currencyValidator.validateCode(codePair.target());
 
         ExchangeRateResponseDto exchangeRate = exchangeRateService.findByCodePair(codePair.base(), codePair.target());
         writeJson(resp, exchangeRate, 200);
@@ -56,7 +70,7 @@ public class ExchangeRateServlet extends BaseServlet {
                 req.getParameter("rate")
         );
 
-        ExchangeRateValidator.validate(dto);
+        exchangeRateValidator.validate(dto);
 
         ExchangeRateResponseDto updatedExchangeRate = exchangeRateService.update(dto.baseCurrencyCode(), dto.targetCurrencyCode(), new BigDecimal(dto.rate()));
         writeJson(resp, updatedExchangeRate, 200);

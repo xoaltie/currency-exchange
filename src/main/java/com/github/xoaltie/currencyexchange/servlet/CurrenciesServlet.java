@@ -16,18 +16,25 @@ import java.util.Objects;
 @WebServlet("/currencies")
 public class CurrenciesServlet extends BaseServlet {
     private CurrencyService currencyService;
+    private CurrencyValidator currencyValidator;
 
     @Override
     public void init() {
         super.init();
         Object rawCurrencyService = getServletContext().getAttribute(AppContextKeys.CURRENCY_SERVICE);
+        Object rawCurrencyValidator = getServletContext().getAttribute(AppContextKeys.CURRENCY_VALIDATOR);
 
         Objects.requireNonNull(rawCurrencyService, "%s not found in ServletContext".formatted(AppContextKeys.CURRENCY_SERVICE));
         if (!(rawCurrencyService instanceof CurrencyService)) {
             throw new IllegalStateException("%s must be %s, got %s instead".formatted(AppContextKeys.CURRENCY_SERVICE, CurrencyService.class, rawCurrencyService.getClass().getTypeName()));
         }
+        Objects.requireNonNull(rawCurrencyValidator, "%s not found in ServletContext".formatted(AppContextKeys.CURRENCY_VALIDATOR));
+        if (!(rawCurrencyValidator instanceof CurrencyValidator)) {
+            throw new IllegalStateException("%s must be %s, got %s instead".formatted(AppContextKeys.CURRENCY_VALIDATOR, CurrencyValidator.class, rawCurrencyValidator.getClass().getTypeName()));
+        }
 
         currencyService = (CurrencyService) rawCurrencyService;
+        currencyValidator = (CurrencyValidator) rawCurrencyValidator;
     }
 
     @Override
@@ -43,9 +50,9 @@ public class CurrenciesServlet extends BaseServlet {
                 req.getParameter("name"),
                 req.getParameter("sign")
         );
-        CurrencyValidator.validate(dto);
+        currencyValidator.validate(dto);
 
-        CurrencyResponseDto newCurrency = currencyService.create(dto);
+        CurrencyResponseDto newCurrency = currencyService.create(dto.code(), dto.name(), dto.sign());
         writeJson(resp, newCurrency, HttpServletResponse.SC_CREATED);
     }
 }
