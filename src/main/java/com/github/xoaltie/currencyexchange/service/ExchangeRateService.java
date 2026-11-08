@@ -60,4 +60,20 @@ public final class ExchangeRateService {
         ExchangeRate newExchangeRate = exchangeRateDao.create(ExchangeRateMapper.INSTANCE.toEntity(baseCurrency, targetCurrency, rate));
         return ExchangeRateMapper.INSTANCE.toDto(newExchangeRate);
     }
+
+    public ExchangeRateResponseDto update(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+        Objects.requireNonNull(baseCurrencyCode, "base currency code must be not null");
+        Objects.requireNonNull(targetCurrencyCode, "target currency code must be not null");
+        Objects.requireNonNull(rate, "rate must be not null");
+
+        if (baseCurrencyCode.equals(targetCurrencyCode)) {
+            throw new IdenticalCurrencyPairException("base and target currency code pairs must not be the same: %s".formatted(baseCurrencyCode));
+        }
+
+        ExchangeRate exchangeRate = exchangeRateDao.findByCodePair(baseCurrencyCode, targetCurrencyCode)
+                .orElseThrow(() -> new ExchangeRateNotFoundException("exchange rate %s does not exist".formatted(baseCurrencyCode + targetCurrencyCode)));
+
+        ExchangeRate updatedExchangeRate = exchangeRateDao.update(exchangeRate, rate);
+        return ExchangeRateMapper.INSTANCE.toDto(updatedExchangeRate);
+    }
 }

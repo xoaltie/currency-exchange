@@ -6,6 +6,7 @@ import com.github.xoaltie.currencyexchange.entity.ExchangeRate;
 import com.github.xoaltie.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.sqlite.SQLiteErrorCode;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -54,6 +55,11 @@ public final class ExchangeRateDaoImpl implements ExchangeRateDao {
             INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate)
             VALUES (?, ?, ?)
             RETURNING id;
+            """;
+    private static final String UPDATE_RATE_QUERY = """
+                    UPDATE exchange_rates
+                    SET rate = ?
+                    WHERE id = ?;
             """;
 
     @Override
@@ -119,6 +125,27 @@ public final class ExchangeRateDaoImpl implements ExchangeRateDao {
                         "exchange rate with codes '%s' and '%s' already exists".formatted(exchangeRate.getBaseCurrency().getCode(), exchangeRate.getTargetCurrency().getCode())
                 );
             }
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ExchangeRate update(ExchangeRate exchangeRate, BigDecimal newRate) {
+        Objects.requireNonNull(exchangeRate, "exchange rate must not be null");
+
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RATE_QUERY)) {
+            preparedStatement.setBigDecimal(1, newRate);
+            preparedStatement.setInt(2, exchangeRate.getId());
+
+            preparedStatement.executeUpdate();
+            return new ExchangeRate(
+                    exchangeRate.getId(),
+                    exchangeRate.getBaseCurrency(),
+                    exchangeRate.getTargetCurrency(),
+                    newRate
+            );
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
