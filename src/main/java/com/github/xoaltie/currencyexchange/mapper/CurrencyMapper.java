@@ -1,6 +1,5 @@
 package com.github.xoaltie.currencyexchange.mapper;
 
-import com.github.xoaltie.currencyexchange.dto.CurrencyRequestDto;
 import com.github.xoaltie.currencyexchange.dto.CurrencyResponseDto;
 import com.github.xoaltie.currencyexchange.entity.Currency;
 import org.mapstruct.Mapper;
@@ -18,6 +17,6 @@ public interface CurrencyMapper {
 
     List<CurrencyResponseDto> toDtoList(List<Currency> currencies);
 
-    @Mapping(source = "name", target = "fullName")
-    Currency fromDto(CurrencyRequestDto dto);
+    @Mapping(target = "id", ignore = true)
+    Currency toEntity(String code, String fullName, String sign);
 }
