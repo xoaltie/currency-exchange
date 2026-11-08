@@ -7,6 +7,7 @@ import com.github.xoaltie.currencyexchange.dao.ExchangeRateDaoImpl;
 import com.github.xoaltie.currencyexchange.db.ConnectionPool;
 import com.github.xoaltie.currencyexchange.service.CurrencyService;
 import com.github.xoaltie.currencyexchange.service.ExchangeRateService;
+import com.github.xoaltie.currencyexchange.service.ExchangeService;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -23,11 +24,13 @@ public class AppContextListener implements ServletContextListener {
         CurrencyService currencyService = new CurrencyService(currencyDao);
         ExchangeRateDao exchangeRateDao = new ExchangeRateDaoImpl();
         ExchangeRateService exchangeRateService = new ExchangeRateService(exchangeRateDao, currencyDao);
+        ExchangeService exchangeService = new ExchangeService(exchangeRateDao);
 
         ServletContext context = sce.getServletContext();
         context.setAttribute(AppContextKeys.OBJECT_MAPPER, objectMapper);
         context.setAttribute(AppContextKeys.CURRENCY_SERVICE, currencyService);
         context.setAttribute(AppContextKeys.EXCHANGE_RATE_SERVICE, exchangeRateService);
+        context.setAttribute(AppContextKeys.EXCHANGE_SERVICE, exchangeService);
     }
 
     @Override
