@@ -38,8 +38,8 @@ public final class ExchangeValidator extends Validator {
             throw new ValidationException("invalid amount format: %s".formatted(amountRaw));
         }
 
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("amount must be positive: %s".formatted(amount));
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ValidationException("amount must be non-negative: %s".formatted(amount));
         }
     }
 }
